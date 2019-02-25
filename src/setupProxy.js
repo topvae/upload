@@ -2,7 +2,7 @@ const proxy = require('http-proxy-middleware');
 module.exports = function(app) {
   app.use('/safe',
     proxy({ 
-      target:'https://zlxprod.citydo.com.cn',
+      target:'http://aqhy-common.citydo.com.cn',
       secure: false,
       changeOrigin: true
     })

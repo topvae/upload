@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
-import {Modal, Input, Form, Button, message} from 'antd';
+import { Input, Form,  message} from 'antd';
 import 'antd/dist/antd.css';
 import './App.css';
 
@@ -114,6 +114,7 @@ class App extends Component {
   }
 }
 
-//注意，Input中的name代表的是传给后台的参数
+//注意，Input中的name代表的是传给后台的参数 enctype="multipart/form-data"是前后台约定的类型
+
 
 export default App;

@@ -1,89 +1,89 @@
-import React, { Component } from 'react';
-import {Upload, Button, Icon} from 'antd';
+//上传的时候不请求接口，参考antd官网的手动上传方法，需要提前npm安装reqwest  npm install reqwest 
+import React from 'react';
+import {
+  Upload, Button, Icon, message,
+} from 'antd';
 import 'antd/dist/antd.css';
-import './App.css';
+import reqwest from 'reqwest';
 
-class App extends Component {
-  state={
-    fileList:[],
-    imageUrl:''
-    
+class Demo extends React.Component {
+  state = {
+    fileList: [],
+    uploading: false,
   }
-  handleChange =({file, fileList})=> {
-      console.log("fileList",fileList,"file",file);
-      this.setState({
-        fileList:fileList,
-        imageUrl:file.response.result
-      })
 
+  handleUpload = () => {
+    const { fileList } = this.state;
+    const formData = new FormData();
+    formData.append('file1', fileList[0]);   //注意第一个参数是传给后台的参数名字，我的项目中叫file1
+    formData.append('file2', fileList[1]);   //注意第一个参数是传给后台的参数名字，我的项目中叫file2
+
+    this.setState({
+      uploading: true,
+    });
+
+    // You can use any AJAX library you like
+    reqwest({
+      url: '/safe/face/faceCompareForSavePic',
+      method: 'post',
+      processData: false,
+      data: formData,
+      success: () => {
+        this.setState({
+          fileList,
+          uploading: false,
+        });
+        message.success('upload successfully.');
+      },
+      error: () => {
+        this.setState({
+          uploading: false,
+        });
+        message.error('upload failed.');
+      },
+    });
   }
+
   render() {
-    const uploadButton = (
-      <div>
-        <Icon type={'plus'} />
-        <div className="ant-upload-text">Upload</div>
-      </div>
-    );
+    const { uploading, fileList } = this.state;
+    const props = {
+      onRemove: (file) => {
+        this.setState((state) => {
+          const index = state.fileList.indexOf(file);
+          const newFileList = state.fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
+      },
+      beforeUpload: (file) => {
+        this.setState(state => ({
+          fileList: [...state.fileList, file],
+        }));
+        return false;
+      },
+      fileList,
+    };
+
     return (
       <div>
-        <Upload
-          name="avatar"
-          listType="picture-card"
-          className="avatar-uploader"
-          action="/safemgmt/api/custom/uploadOrganPic"
-          onChange={this.handleChange}
-       >
-         {/* {this.state.imageUrl ? <img src={this.state.imageUrl} alt="avatar" />  */}
-         {uploadButton}
-         {/* } */}
-          
-         
+        <Upload {...props}>
+          <Button>
+            <Icon type="upload" /> Select File
+          </Button>
         </Upload>
+        <Button
+          type="primary"
+          onClick={this.handleUpload}
+          disabled={fileList.length === 0}
+          loading={uploading}
+          style={{ marginTop: 16 }}
+        >
+          {uploading ? 'Uploading' : 'Start Upload' }
+        </Button>
       </div>
     );
   }
 }
-
-export default App;
-
-  handleChange =({file, fileList})=> {
-    console.log(file);
-      this.setState({
-        fileList:fileList,
-        file1url:file.response&&file.response.result,
-      })
-  }
-  handleChange2 =({file, fileList})=> {
-    this.setState({
-      fileList2:fileList,
-      file2url:file.response&&file.response.result
-    })
-}
-
-
-
-  <Upload
-         //发到后台的文件参数名name="avatar"一定不要写！！！！默认是file,否则传给后台的格式会有问题
-          listType="picture-card"
-          className="avatar-uploader left"
-          // action="/safemgmt/api/custom/uploadOrganPic"
-          onChange={this.handleChange}
-       >
-        {this.state.fileList.length >= 1 ? null : uploadButton}
-        </Upload>
-        <Upload
-         //发到后台的文件参数名name="avatar"一定不要写！！！！默认是file,否则传给后台的格式会有问题
-          listType="picture-card"
-          className="avatar-uploader right"
-          action="/safemgmt/api/custom/uploadOrganPic"
-          onChange={this.handleChange2}
-       >
-        {this.state.fileList2.length >= 1 ? null : uploadButton}
-        </Upload>
-
-      const uploadButton = (
-      <div className="font">
-        <Icon type={'plus'} />
-        <div className="ant-upload-text">上传</div>
-      </div>
-    );
+export default Demo;
